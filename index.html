@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PDV — Pizzaria Eri Lanches</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ===================== LOGIN ===================== -->
+<div id="login" class="login-wrap">
+  <form id="login-form" class="login-card">
+    <div class="logo-big">🍕</div>
+    <h1>Eri Lanches</h1>
+    <p class="muted">Sistema de PDV — acesso restrito</p>
+    <label>E-mail<input type="email" id="login-email" required autocomplete="username"></label>
+    <label>Senha<input type="password" id="login-pass" required autocomplete="current-password"></label>
+    <button class="btn primary block" type="submit">Entrar</button>
+    <small id="login-err" class="err"></small>
+  </form>
+</div>
+
+<!-- ===================== APP ===================== -->
+<div id="app" class="hidden">
+  <header class="topbar">
+    <div class="brand"><span>🍕</span><strong id="store-name">Eri Lanches</strong></div>
+    <div class="topbar-info">
+      <span id="caixa-pill" class="pill">Caixa</span>
+      <span id="clock" class="mono"></span>
+      <span id="user-email" class="muted"></span>
+      <button id="btn-logout" class="btn ghost sm">Sair</button>
+    </div>
+  </header>
+
+  <aside class="sidebar">
+    <nav>
+      <button class="nav-btn active" data-view="pdv"><span>🧾</span>PDV</button>
+      <button class="nav-btn" data-view="mesas"><span>🍽️</span>Mesas</button>
+      <button class="nav-btn" data-view="pedidos"><span>📋</span>Pedidos<i id="badge-pedidos" class="badge"></i></button>
+      <button class="nav-btn" data-view="cozinha"><span>👨‍🍳</span>Cozinha<i id="badge-cozinha" class="badge"></i></button>
+      <button class="nav-btn" data-view="clientes"><span>👥</span>Clientes</button>
+      <button class="nav-btn" data-view="produtos"><span>🍕</span>Produtos</button>
+      <button class="nav-btn" data-view="caixa"><span>💰</span>Caixa</button>
+      <button class="nav-btn" data-view="relatorios"><span>📊</span>Relatórios</button>
+      <button class="nav-btn" data-view="config"><span>⚙️</span>Config</button>
+    </nav>
+  </aside>
+
+  <main id="views">
+    <!-- ---------- PDV ---------- -->
+    <section class="view active" data-view="pdv">
+      <div class="pdv-grid">
+        <div class="pdv-left">
+          <div id="pdv-banner" class="banner hidden"></div>
+          <div class="modes" id="pdv-modes">
+            <button class="mode" data-modo="mesa">🍽️ Mesa</button>
+            <button class="mode active" data-modo="retirada">🛍️ Retirada</button>
+            <button class="mode" data-modo="entrega">🛵 Entrega</button>
+          </div>
+          <div class="search-row">
+            <input id="pdv-search" type="search" placeholder="Buscar produto ou ingrediente...">
+          </div>
+          <div id="pdv-cats" class="chips"></div>
+          <div id="pdv-products" class="prod-grid"></div>
+        </div>
+
+        <div class="pdv-right">
+          <h3 class="panel-title">Pedido atual</h3>
+          <div id="cart-items" class="cart-items"></div>
+
+          <div id="mesa-box" class="entrega-box hidden">
+            <label>Nome da mesa / cliente<input id="m-nome" placeholder="Ex.: Mesa 3, João..."></label>
+          </div>
+
+          <div id="retirada-box" class="entrega-box hidden">
+            <label>Nome do cliente<input id="r-nome" placeholder="Nome"></label>
+            <label>Telefone<input id="r-tel" placeholder="(00) 00000-0000"></label>
+          </div>
+
+          <div id="entrega-box" class="entrega-box hidden">
+            <div class="row">
+              <label class="grow">Telefone
+                <input id="c-tel" placeholder="(00) 00000-0000">
+              </label>
+              <button id="btn-buscar-cli" class="btn ghost sm">🔍</button>
+            </div>
+            <label>Nome do cliente<input id="c-nome" placeholder="Nome"></label>
+            <div class="row">
+              <label class="grow">Endereço<input id="c-end" placeholder="Rua / Av."></label>
+              <label class="w80">Nº<input id="c-num"></label>
+            </div>
+            <label>Bairro
+              <select id="c-bairro"></select>
+            </label>
+            <label>Referência<input id="c-ref" placeholder="Perto de..."></label>
+          </div>
+
+          <label class="obs-label">Observação do pedido
+            <textarea id="pdv-obs" rows="2" placeholder="Ex.: sem cebola, campainha quebrada..."></textarea>
+          </label>
+
+          <div class="totais">
+            <div class="lin"><span>Subtotal</span><strong id="t-sub">R$ 0,00</strong></div>
+            <div class="lin"><span>Desconto</span>
+              <input id="t-desc" class="mini-input" value="0" inputmode="decimal"></div>
+            <div class="lin" id="lin-taxa"><span>Taxa de entrega</span>
+              <input id="t-taxa" class="mini-input" value="0" inputmode="decimal"></div>
+            <div class="lin" id="lin-serv"><span>Serviço <em id="serv-pc"></em></span>
+              <label class="switch"><input type="checkbox" id="t-serv"><span></span></label></div>
+            <div class="lin total"><span>TOTAL</span><strong id="t-total">R$ 0,00</strong></div>
+          </div>
+
+          <div class="cart-actions">
+            <button id="btn-limpar" class="btn ghost">Limpar</button>
+            <button id="btn-finalizar" class="btn primary">Finalizar</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- MESAS ---------- -->
+    <section class="view" data-view="mesas">
+      <div class="view-head"><h2>Mesas</h2>
+        <button id="btn-nova-mesa" class="btn ghost sm">+ Nova mesa</button></div>
+      <div id="mesas-grid" class="mesas-grid"></div>
+    </section>
+
+    <!-- ---------- PEDIDOS ---------- -->
+    <section class="view" data-view="pedidos">
+      <div class="view-head"><h2>Pedidos do dia</h2>
+        <div id="ped-filtros" class="chips"></div></div>
+      <div id="pedidos-list" class="orders-list"></div>
+    </section>
+
+    <!-- ---------- COZINHA ---------- -->
+    <section class="view" data-view="cozinha">
+      <div class="view-head"><h2>Cozinha (KDS)</h2><span class="muted">Atualiza em tempo real</span></div>
+      <div id="kds-grid" class="kds-grid"></div>
+    </section>
+
+    <!-- ---------- CLIENTES ---------- -->
+    <section class="view" data-view="clientes">
+      <div class="view-head"><h2>Clientes</h2>
+        <div class="row">
+          <input id="cli-search" type="search" placeholder="Nome ou telefone">
+          <button id="btn-novo-cli" class="btn primary sm">+ Cliente</button>
+        </div>
+      </div>
+      <div id="clientes-table" class="table-wrap"></div>
+    </section>
+
+    <!-- ---------- PRODUTOS ---------- -->
+    <section class="view" data-view="produtos">
+      <div class="view-head"><h2>Produtos</h2>
+        <div class="row">
+          <input id="prod-search" type="search" placeholder="Buscar">
+          <button id="btn-novo-prod" class="btn primary sm">+ Produto</button>
+        </div>
+      </div>
+      <div id="produtos-table" class="table-wrap"></div>
+    </section>
+
+    <!-- ---------- CAIXA ---------- -->
+    <section class="view" data-view="caixa">
+      <div class="view-head"><h2>Caixa</h2></div>
+      <div id="caixa-content"></div>
+    </section>
+
+    <!-- ---------- RELATÓRIOS ---------- -->
+    <section class="view" data-view="relatorios">
+      <div class="view-head"><h2>Relatórios</h2>
+        <div class="row">
+          <label class="inline">De<input type="date" id="rel-de"></label>
+          <label class="inline">Até<input type="date" id="rel-ate"></label>
+          <button id="btn-rel" class="btn primary sm">Gerar</button>
+        </div>
+      </div>
+      <div id="rel-content"></div>
+    </section>
+
+    <!-- ---------- CONFIG ---------- -->
+    <section class="view" data-view="config">
+      <div class="view-head"><h2>Configurações</h2></div>
+      <div id="config-content"></div>
+    </section>
+  </main>
+</div>
+
+<!-- ===================== MODAL / TOASTS / IMPRESSÃO ===================== -->
+<div id="backdrop" class="backdrop">
+  <div id="modal" class="modal">
+    <div class="modal-head"><h3 id="modal-title"></h3><button class="x" data-close>✕</button></div>
+    <div id="modal-body" class="modal-body"></div>
+    <div id="modal-footer" class="modal-foot"></div>
+  </div>
+</div>
+<div id="toasts" class="toasts"></div>
+<div id="print-area"></div>
+
+<!-- ✅ Tag corrigida (Somente a URL direta no src) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

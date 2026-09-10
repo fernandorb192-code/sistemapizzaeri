@@ -1164,31 +1164,36 @@ function imprimirCupom(o, parcial = false) {
     <h2>${esc(s.nome_loja||'Eri Lanches')}</h2>
     <div class="c">${esc(s.endereco||'')}<br>${esc(s.telefone||'')}</div>
     <div class="hr"></div>
-    <div class="c"><b>${parcial ? 'CONFERÊNCIA (NÃO FISCAL)' : 'CUPOM NÃO FISCAL'}</b></div>
-    <div>Pedido: #${o.numero}</div>
-    <div>Data: ${dataHora(o.created_at)}</div>
-    <div>Tipo: ${LABEL_TIPO[o.tipo]}${mesa ? ' '+mesa : ''}</div>
-    ${o.cliente_nome ? `<div>Cliente: ${esc(o.cliente_nome)}</div>` : ''}
-    ${o.cliente_telefone ? `<div>Fone: ${esc(o.cliente_telefone)}</div>` : ''}
-    ${o.endereco ? `<div>End.: ${esc(o.endereco)}</div>` : ''}
+    <div class="c"><b style="font-size:18px">${parcial ? 'CONFERÊNCIA (NÃO FISCAL)' : 'CUPOM NÃO FISCAL'}</b></div>
+    <div style="font-size:16px"> pedido: #${o.numero}</div>
+    <div style="font-size:15px">Data: ${dataHora(o.created_at)}</div>
+    <div style="font-size:15px">Tipo: ${LABEL_TIPO[o.tipo]}${mesa ? ' '+mesa : ''}</div>
+    ${o.cliente_nome ? `<div style="font-size:15px">Cliente: ${esc(o.cliente_nome)}</div>` : ''}
+    ${o.cliente_telefone ? `<div style="font-size:15px">Fone: ${esc(o.cliente_telefone)}</div>` : ''}
+    ${o.endereco ? `<div style="font-size:14px">End.: ${esc(o.endereco)}</div>` : ''}
     <div class="hr"></div>
-    <table>${itens.map(i => `
-      <tr><td>${i.qtd}x ${esc(i.nome)}</td><td style="text-align:right">${money(i.total)}</td></tr>
-      ${i.observacao ? `<tr><td colspan="2">  * ${esc(i.observacao)}</td></tr>` : ''}`).join('')}
+    <table style="font-size:15px">
+      ${itens.map(i => `
+        <tr>
+          <td class="item-qty" style="font-weight:bold;font-size:16px">${i.qtd}x</td>
+          <td class="item-name" style="font-size:15px">${esc(i.nome)}</td>
+          <td style="text-align:right;font-size:16px;font-weight:bold">${money(i.total)}</td>
+        </tr>
+        ${i.observacao ? `<tr><td colspan="3" style="font-size:14px">  * ${esc(i.observacao)}</td></tr>` : ''}`).join('')}
     </table>
     <div class="hr"></div>
-    <table>
-      <tr><td>Subtotal</td><td style="text-align:right">${money(o.subtotal)}</td></tr>
-      ${Number(o.desconto) ? `<tr><td>Desconto</td><td style="text-align:right">-${money(o.desconto)}</td></tr>`:''}
-      ${Number(o.taxa_entrega) ? `<tr><td>Entrega</td><td style="text-align:right">${money(o.taxa_entrega)}</td></tr>`:''}
-      ${Number(o.taxa_servico) ? `<tr><td>Serviço</td><td style="text-align:right">${money(o.taxa_servico)}</td></tr>`:''}
-      <tr class="tot"><td>TOTAL</td><td style="text-align:right">${money(o.total)}</td></tr>
-      ${o.pagamento ? `<tr><td>Pgto</td><td style="text-align:right">${esc(o.pagamento)}</td></tr>`:''}
-      ${Number(o.troco) ? `<tr><td>Troco</td><td style="text-align:right">${money(o.troco)}</td></tr>`:''}
+    <table style="font-size:15px">
+      <tr><td style="font-size:15px">Subtotal</td><td style="text-align:right;font-size:15px">${money(o.subtotal)}</td></tr>
+      ${Number(o.desconto) ? `<tr><td style="font-size:15px">Desconto</td><td style="text-align:right;font-size:15px">-${money(o.desconto)}</td></tr>`:''}
+      ${Number(o.taxa_entrega) ? `<tr><td style="font-size:15px">Entrega</td><td style="text-align:right;font-size:15px">${money(o.taxa_entrega)}</td></tr>`:''}
+      ${Number(o.taxa_servico) ? `<tr><td style="font-size:15px">Serviço</td><td style="text-align:right;font-size:15px">${money(o.taxa_servico)}</td></tr>`:''}
+      <tr class="tot2"><td style="font-size:18px;font-weight:bold">TOTAL</td><td style="text-align:right;font-size:18px;font-weight:bold">${money(o.total)}</td></tr>
+      ${o.pagamento ? `<tr><td style="font-size:15px">Pgto</td><td style="text-align:right;font-size:15px">${esc(o.pagamento)}</td></tr>`:''}
+      ${Number(o.troco) ? `<tr><td style="font-size:15px">Troco</td><td style="text-align:right;font-size:15px">${money(o.troco)}</td></tr>`:''}
     </table>
-    ${o.observacao ? `<div class="hr"></div><div>Obs: ${esc(o.observacao)}</div>` : ''}
+    ${o.observacao ? `<div class="hr"></div><div style="font-size:14px">Obs: ${esc(o.observacao)}</div>` : ''}
     <div class="hr"></div>
-    <div class="c">${esc(s.mensagem_cupom||'')}</div>`);
+    <div class="c" style="font-size:14px">${esc(s.mensagem_cupom||'')}</div>`);
 }
 function imprimirComanda(conta, itens) {
   const mesa = state.tables.find(t => t.id === conta.mesa_id)?.numero;

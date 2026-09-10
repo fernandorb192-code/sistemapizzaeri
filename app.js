@@ -60,6 +60,12 @@ const LABEL_TIPO = { retirada:'Retirada', entrega:'Entrega', mesa:'Mesa' };
 const LABEL_ST   = { aberto:'Aberto', recebido:'Recebido', producao:'Em produção', pronto:'Pronto',
                      entrega:'Em rota', finalizado:'Finalizado', cancelado:'Cancelado' };
 const PAGAMENTOS = ['Dinheiro','Pix','Cartão Débito','Cartão Crédito','Vale/Fiado'];
+const BORDAS = [
+  { id:'sem', nome:'Sem borda', valor:0 },
+  { id:'cheddar', nome:'Borda de cheddar', valor:2 },
+  { id:'catupiry', nome:'Borda de catupiry', valor:2 },
+  { id:'chocolate', nome:'Borda de chocolate', valor:5 }
+];
 
 /* ------------------------------ STATE ------------------------------ */
 const state = {
@@ -260,6 +266,8 @@ function renderProdGrid() {
 /* --------- pizza inteira / meio a meio --------- */
 function escolherPizza(p) {
   const pizzas = state.prods.filter(x => x.is_pizza && x.ativo && x.id !== p.id);
+  let bordaSelecionada = 'sem';
+  const bordaAtual = () => BORDAS.find(b => b.id === bordaSelecionada) || BORDAS[0];
   modal({
     title: `${p.nome} — como deseja?`, wide: true,
     body: `
@@ -268,16 +276,25 @@ function escolherPizza(p) {
         <button class="btn grow" id="op-meio">½ Meio a meio</button>
       </div>
       <div id="half-box" class="hidden">
-        <p class="muted" style="margin-bottom:9px">Escolha o 2º sabor (vale o maior valor):</p>
+        <p class="muted" style="margin-bottom:9px">Escolha o 2º sabor (valor médio dos dois sabores):</p>
         <input id="half-q" placeholder="Buscar sabor..." style="margin-bottom:10px">
         <div class="pick-list" id="half-list">
           ${pizzas.map(x => `<button class="pick" data-id="${x.id}">
             <b>${esc(x.nome)}</b><small>${money(precoDe(x))}</small></button>`).join('')}
         </div>
+      </div>
+      <p class="muted" style="margin:14px 0 9px">Escolha a borda:</p>
+      <div class="pick-list" id="borda-list">
+        ${BORDAS.map((b, i) => `<button class="pick ${i === 0 ? 'sel' : ''}" data-borda="${b.id}">
+          <b>${esc(b.nome)}</b><small>${b.valor ? '+ ' + money(b.valor) : 'Sem adicional'}</small></button>`).join('')}
       </div>`,
     footer: '<button class="btn ghost" data-close>Cancelar</button>'
   });
-  $('#op-int').onclick = () => { addItem({ p }); closeModal(); };
+  const selecionarBorda = id => {
+    bordaSelecionada = id;
+    $$('#borda-list .pick').forEach(b => b.classList.toggle('sel', b.dataset.borda === id));
+  };
+  $('#op-int').onclick = () => { addItem({ p, borda:bordaAtual() }); closeModal(); };
   $('#op-meio').onclick = () => $('#half-box').classList.remove('hidden');
   $('#half-q').oninput = e => {
     const q = e.target.value.toLowerCase();
@@ -287,14 +304,18 @@ function escolherPizza(p) {
     });
   };
   $$('#half-list .pick').forEach(b => b.onclick = () => {
-    addItem({ p, p2: state.prods.find(x => x.id === b.dataset.id) });
+    addItem({ p, p2: state.prods.find(x => x.id === b.dataset.id), borda:bordaAtual() });
     closeModal();
   });
+  $$('#borda-list .pick').forEach(b => b.onclick = () => selecionarBorda(b.dataset.borda));
 }
 
-function addItem({ p, p2 = null }) {
-  const preco = p2 ? Math.max(precoDe(p), precoDe(p2)) : precoDe(p);
-  const nome  = p2 ? `½ ${p.nome} / ½ ${p2.nome}` : p.nome;
+function addItem({ p, p2 = null, borda = null }) {
+  const bordaInfo = borda || BORDAS[0];
+  const precoBase = p2 ? (precoDe(p) + precoDe(p2)) / 2 : precoDe(p);
+  const preco = precoBase + bordaInfo.valor;
+  const nomeBase = p2 ? `½ ${p.nome} / ½ ${p2.nome}` : p.nome;
+  const nome = bordaInfo.id === 'sem' ? nomeBase : `${nomeBase} — ${bordaInfo.nome}`;
   const igual = state.pdv.cart.find(i => i.nome === nome && !i.obs);
   if (igual) igual.qtd++;
   else state.pdv.cart.push({

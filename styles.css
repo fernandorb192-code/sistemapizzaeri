@@ -345,6 +345,7 @@ td .btn{padding:5px 10px;font-size:12px;min-height:32px}
   #print-area .hr{border-top:1px dashed #000;margin:10px 0}
   #print-area table{width:100%;font-size:18px;border-collapse:collapse}
   #print-area td{border:0;padding:4px 0;color:#000}
+  #print-area .borda-destaque td{border-top:1px solid #000;border-bottom:1px solid #000;padding:5px 0;font-weight:bold;text-align:center}
   #print-area .tot{font-size:24px;font-weight:bold}
   #print-area .tot2{font-size:26px;font-weight:bold;color:#000}
   #print-area .item-name{font-size:18px}

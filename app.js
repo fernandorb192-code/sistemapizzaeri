@@ -1142,6 +1142,25 @@ function printNow(html) {
   $('#print-area').innerHTML = html;
   window.print();
 }
+function linhasDoItem(i) {
+  const nomeOriginal = i.nome || '';
+  const borda = BORDAS.find(b => b.id !== 'sem' && nomeOriginal.endsWith(` — ${b.nome}`));
+  const nome = borda ? nomeOriginal.slice(0, nomeOriginal.length - ` — ${borda.nome}`.length) : nomeOriginal;
+  const sabores = nome.includes(' / ') ? nome.split(' / ') : (i.meio_a_meio && i.nome2 ? [nome, i.nome2] : [nome]);
+  const total = `<td style="text-align:right">${money(i.total)}</td>`;
+  const linhas = sabores.length === 2 ? [
+    `<tr><td>${i.qtd}x ½ ${esc(sabores[0].replace(/^½\s*/, '').trim())}</td>${total}</tr>`,
+    `<tr><td colspan="2">  + ½ ${esc(sabores[1].replace(/^½\s*/, '').trim())}</td></tr>`
+  ] : [
+    `<tr><td>${i.qtd}x ${esc(nome)}</td>${total}</tr>`
+  ];
+  if (borda) {
+    const adicional = borda.valor ? ` (+${money(borda.valor)})` : '';
+    linhas.push(`<tr class="borda-destaque"><td colspan="2"><b>Borda: ${esc(borda.nome)}${adicional}</b></td></tr>`);
+  }
+  if (i.observacao) linhas.push(`<tr><td colspan="2">  * ${esc(i.observacao)}</td></tr>`);
+  return linhas.join('');
+}
 function imprimirCupom(o, parcial = false) {
   const s = state.settings;
   const mesa = o.mesa_id ? state.tables.find(t => t.id === o.mesa_id)?.numero : null;
@@ -1158,10 +1177,7 @@ function imprimirCupom(o, parcial = false) {
     ${o.cliente_telefone ? `<div>Fone: ${esc(o.cliente_telefone)}</div>` : ''}
     ${o.endereco ? `<div>End.: ${esc(o.endereco)}</div>` : ''}
     <div class="hr"></div>
-    <table>${itens.map(i => `
-      <tr><td>${i.qtd}x ${esc(i.nome)}</td><td style="text-align:right">${money(i.total)}</td></tr>
-      ${i.observacao ? `<tr><td colspan="2">  * ${esc(i.observacao)}</td></tr>` : ''}`).join('')}
-    </table>
+    <table>${itens.map(i => linhasDoItem(i)).join('')}</table>
     <div class="hr"></div>
     <table>
       <tr><td>Subtotal</td><td style="text-align:right">${money(o.subtotal)}</td></tr>
